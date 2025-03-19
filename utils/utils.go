@@ -48,7 +48,6 @@ func DeleteAllImages() error {
 			if err != nil {
 				return fmt.Errorf("failed to delete file %s: %w", path, err)
 			}
-			fmt.Println("Deleted:", path)
 		}
 		return nil
 	})
@@ -57,7 +56,6 @@ func DeleteAllImages() error {
 		return err
 	}
 
-	fmt.Println("All images deleted successfully.")
 	return nil
 }
 

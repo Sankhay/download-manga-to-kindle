@@ -3,16 +3,4 @@ body {
     color: #333;
     margin: 0;
     padding: 0;
-    overflow-y: scroll;
-}
-
-.scrollable-image-container {
-    width: 100%; /* Largura máxima do container */
-    max-height: 300; /* Altura do container, ajustável */
-    overflow: scroll; /* Permite o scroll */
-}
-
-.scrollable-image-container img {
-    width: auto; /* Imagem com largura proporcional */
-    height: auto; /* Imagem com altura proporcional */
 }

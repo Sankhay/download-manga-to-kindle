@@ -21,9 +21,12 @@ import (
 )
 
 func main() {
-	// Inicializa o contexto do Chrome
-	// URL do site
-	url := "https://slimeread.com/ler/19743/cap-01"
+
+	var url string
+
+	fmt.Println("Link do capitulo: ")
+	fmt.Println("Exemplo: https://slimeread.com/ler/429/cap-01")
+	fmt.Scanln(&url)
 
 	mangaChapter := utils.ExtractLastNumbers(url)
 
@@ -36,15 +39,12 @@ func main() {
 	if len(imagesLinks) >= 2 {
 		imagesLinks = imagesLinks[:len(imagesLinks)-2]
 	} else {
-		imagesLinks = nil // Or handle the case where there are fewer than 2 images
+		imagesLinks = nil
 	}
 
-	// Download the image
 	imagesPath, err := downloadImages(imagesLinks)
 
-	fmt.Println("imagesPath: ", imagesPath)
-
-	//defer utils.DeleteAllImages()
+	defer utils.DeleteAllImages()
 
 	if err != nil {
 		log.Printf("Failed to download image: %v", err)
@@ -138,11 +138,6 @@ func downloadImages(imagesLinks []string) ([]string, error) {
 
 		imagesPath = append(imagesPath, filePath)
 
-		/*err = resizeImage(filePath, filepath.Join(configs.ImageDir, utils.ImageNameToResized(fileName)), 1000, 1400)
-
-		if err != nil {
-			return fmt.Errorf("failed to resize image %w", err)
-		}*/
 	}
 
 	return imagesPath, nil
@@ -212,14 +207,12 @@ func convertPNGtoJPG(inputPath string) (*string, error) {
 }
 
 func convertWEBPtoJPG(inputPath string) (*string, error) {
-	// Open WebP file
 	inFile, err := os.Open(inputPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open WebP file: %v", err)
 	}
 	defer inFile.Close()
 
-	// Decode WebP image
 	img, err := webp.Decode(inFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode WebP: %v", err)
@@ -229,7 +222,6 @@ func convertWEBPtoJPG(inputPath string) (*string, error) {
 
 	outFilePath := utils.ChangeExtensionToJpg(inputPath)
 
-	// Create output JPG file
 	outFile, err := os.Create(outFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create JPG file: %v", err)
@@ -265,19 +257,13 @@ func createEpubfile(epubFileName string, mangaImgsPath []string) error {
 
 	for _, imgPath := range mangaImgsPath {
 
-		fmt.Println("imagePath", imgPath)
-
 		imgPathInEpub, err := e.AddImage(imgPath, "")
 
 		if err != nil {
 			return fmt.Errorf(`failed adding image to epub: %w`, err)
 		}
 
-		content := fmt.Sprintf(`
-		<div class="scrollable-image-container">
-		<img src="%s" />
-		</div>
-		`, imgPathInEpub)
+		content := fmt.Sprintf(`<img src="%s" />`, imgPathInEpub)
 
 		allContent += content
 	}
@@ -296,36 +282,3 @@ func createEpubfile(epubFileName string, mangaImgsPath []string) error {
 
 	return nil
 }
-
-/*func resizeImage(inputPath, outputPath string, width, height uint) error {
-	file, err := os.Open(inputPath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	img, format, err := image.Decode(file)
-	if err != nil {
-		return err
-	}
-
-	if format == "png" {
-		// Decode the PNG image
-		file.Seek(0, 0) // Reset file pointer to the beginning
-		img, err = png.Decode(file)
-		if err != nil {
-			return err
-		}
-	}
-
-	resizedImg := resize.Resize(width, height, img, resize.Lanczos3)
-
-	outFile, err := os.Create(utils.ChangeExtensionToJpg(outputPath))
-	if err != nil {
-		return err
-	}
-	defer outFile.Close()
-
-	err = jpeg.Encode(outFile, resizedImg, nil)
-	return err
-}*/
